@@ -1,0 +1,77 @@
+﻿@model CourseAdd
+@{
+    ViewData["Title"] = "Delete course";
+}
+@{
+    var parms = new Dictionary<string, string>
+{
+{ "CourseID", Model.CourseID }
+};
+}
+
+<div class="forma">
+    <div class="main-div">
+        <div class="panel">
+            <h2>Delete course</h2>
+            <p>Informations about course</p>
+        </div>
+        <form id="mojaForma" method="post" asp-action="DeletePost" asp-controller="Course" asp-all-route-data=parms>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label asp-for="CourseID">Course ID</label>
+                    <input asp-for="CourseID" placeholder="Course ID" readonly="readonly" class="form-control" type="text" name="CourseID" value="@Model.CourseID" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" placeholder="Name" class="form-control" type="text" name="Name" value="@Model.Name" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="ESPB">ESPB</label>
+                    <input asp-for="ESPB" placeholder="ESPB" class="form-control" type="text" name="ESPB" value="@Model.ESPB" />
+                </div>
+            </div>
+            <div class="list-group" style="width:100%; margin:0 auto;">
+                <label>Activity types</label>
+                <table id="activityTypesTable" class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Activity type iD</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Min points</th>
+                            <th scope="col">Maks points</th>
+                            <th scope="col">Weight coefficient</th>
+                            <th scope="col">Required</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <br />
+            <button type="submit" id="SaveButton" class="btn btn-primary" name="save">Delete course</button>
+        </form>
+    </div>
+</div>
+<script>
+    var t;
+    var p;
+    $(document).ready(function () {
+
+        t = $("#activityTypesTable").DataTable({
+            dom: "Brtip",
+            // for disable multiple column at once
+            "serverSide": false,
+            ajax: {
+                "url": "/Course/ActivityTypesForUpdate/" +'@Html.Raw(Model.CourseID)',
+                "type": "GET",
+                "datatype": "json"
+            },
+            "columns": [
+                { "data": "ID", "name": "ID", "autoWidth": true },
+                { "data": "Name", "name": "Name", "autoWidth": true },
+                { "data": "MinPoints", "name": "MinPoints", "autoWidth": true },
+                { "data": "MaxPoints", "name": "MaxPoints", "autoWidth": true },
+                { "data": "WeightCoefficient", "name": "WeightCoefficient", "autoWidth": true },
+                { "data": "Required", "name": "Required", "autoWidth": true }
+            ]
+        });
+    });
+</script>

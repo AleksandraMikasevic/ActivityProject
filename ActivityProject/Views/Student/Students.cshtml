@@ -1,0 +1,101 @@
+﻿@model IQueryable<Student>
+@{
+    ViewBag.Title = "Students";
+}
+
+<div style="width:92%; margin:0 auto;">
+    <div class="col-xl-4 col-lg-8 col-md-12 col-sm-12 col-12">
+        <a href="/Student/Add" class="btn btn-link" style="font-size:40px;"><i class="fa fa-plus-square-o"></i></a>
+    </div>
+</div>
+
+<div style="width:90%; margin:0 auto;">
+    <table id="studentsTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <!-- <th><div></div></th>-->
+                <th><div>ID</div></th>
+                <th><div>Transcript number</div></th>
+                <th><div>First name</div></th>
+                <th><div>Last name</div></th>
+                <th><div>Courses</div></th>
+                <th><div></div></th>
+                <th><div></div></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        var table = $("#studentsTable").DataTable({
+            "destroy": true,
+            "processing": true, // for show progress bar
+            "serverSide": true, // for process server side
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "order": [[1, "asc"]],
+            "ajax": {
+                "url": "/Student/Students/Table/",
+                "type": "POST",
+                "datatype": "json"
+            },
+
+            "columns": [
+                { "data": "ID", "name": "ID", "autoWidth": true },
+
+                { "data": "TranscriptNumber", "name": "TranscriptNumber", "autoWidth": true },
+                { "data": "FirstName", "name": "FirstName", "autoWidth": true },
+                { "data": "LastName", "name": "LastName", "autoWidth": true },
+                {
+                    "render": function (data, type, full, meta) {
+                        return '<a class="fa fa-info-circle" style="font-size:24px;" href="/Student/ChooseCourse/' + full.ID + '"></a>';
+                    }
+                },
+                {
+                    "render": function (data, type, full, meta) {
+                        return '<a class="fa fa-cogs" style="font-size:24px;" href="/Student/Update/' + full.ID + '"></a>';
+                    }
+                },
+                {
+                    "render": function (data, type, full, meta) {
+                        return '<a class="fa fa-remove" style="font-size:24px;" href="/Student/Delete/' + full.ID + '"></a>';
+                    }
+                },
+            ]
+
+        });
+        /* $('#predmetTabela tbody').on('click', 'td.details-control', function () {
+             var tr = $(this).closest('tr');
+             var row = table.row(tr);
+             if (row.child.isShown()) {
+                 // This row is already open - close it
+                 row.child.hide();
+                 tr.removeClass('shown');
+             }
+             else {
+                 var s = "";
+                 $.ajax({
+                     url: "/Student/VratiPredmetePoStudentu/" + row.data().JMBG,
+                     type: 'post',
+                     dataType: 'json',
+                     success: function (a) {
+                         s = s + '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+                         for (i = 0; i < a.data.length; i++) {
+                             s = s + '<tr>' +
+                                 '<td> <a  href="/Student/StudentPredmetAktivnosti/' + row.data().JMBG + '/' + a.data[i].SifraPredmeta + '">'+a.data[i].Predmet.Naziv+'</a></td>' +
+                                 '</tr>';
+                         }
+                         s = s + '</table>';
+                         row.child(s).show();
+                         tr.addClass('shown');
+                     },
+                     error: function (jqxhr, status, exception) {
+                         alert('Exception:', exception.toString());
+                     }
+                 });
+             }
+         });*/
+    });
+
+
+</script>

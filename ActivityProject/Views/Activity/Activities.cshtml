@@ -1,0 +1,96 @@
+﻿
+@model IEnumerable<Activity>
+@{
+    ViewBag.Title = "Activities";
+}
+<div style="width:90%; margin:0 auto;">
+    <table id="aktivnostTabela" class="table table-striped table-bordered dt-responsive nowrap" style="overflow-x:hidden" cellspacing="0">
+        <thead>
+
+            <tr>
+                <th><div>Transcript number</div></th>
+                <th><div>First Name</div></th>
+                <th><div>Last name</div></th>
+                <th><div>Course name</div></th>
+                <th><div>Type name</div></th>
+                <th><div>Date</div></th>
+                <th><div>Points</div></th>
+                <th><div></div></th>
+                <th><div></div></th>
+                <th><div></div></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th><div>Transcript number</div></th>
+                <th><div>First Name</div></th>
+                <th><div>Last name</div></th>
+                <th><div>Course name</div></th>
+                <th><div>Type name</div></th>
+                <th><div>Date</div></th>
+            </tr>
+        </tfoot>
+
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+
+
+       /* $('#aktivnostTabela thead tr:eq(0) th').each(function () {
+            var title = $('#aktivnostTabela thead tr:eq(1) th').eq($(this).index()).text();
+            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        });*/
+        var tabela = $("#aktivnostTabela").DataTable({
+            "destroy": true,
+            "processing": true, // for show progress bar
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "dom": 'lrtip',
+            "ajax": {
+                "url": "/Activity/ActivitiesPost/",
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columns": [
+                { "data": "Student.TranscriptNumber", "name": "TranscriptNumber", "autoWidth": true },
+                { "data": "Student.FirstName", "name": "FirstName", "autoWidth": true },
+                { "data": "Student.LastName", "name": "LastName", "autoWidth": true },
+                { "data": "ActivityType.Course.Name", "name": "CourseName", "autoWidth": true },
+                { "data": "ActivityType.Name", "name": "ActivityTypeName", "autoWidth": true },
+                {
+                    "data": "Date", "name": "Date", "autoWidth": true,
+                    "render": function (data, type, row) {
+                        var date = new Date(data);
+                        var day = date.getDate();
+                        var month = date.getMonth();
+                        var year = date.getFullYear();
+                        return day + "." + month + "." + year;
+                    }
+                },
+                { "data": "Points", "name": "Points", "autoWidth": true },
+                {
+                    "render": function (data, type, full, meta) { return '<a class="fa fa-cogs" href="/Activity/Update/' + full.Professor.ID + '/' + full.Student.ID + '/' + full.ActivityType.Course.ID + '/' + full.ActivityType.ID + '/' + full.Date + '/' + full.Points + '"></a>'; }
+                },
+                {
+                    "render": function (data, type, full, meta) { return '<a class="fa fa-remove" href="/Activity/Delete/' + full.Professor.ID + '/' + full.Student.ID + '/' + full.ActivityType.Course.ID + '/' + full.ActivityType.ID + '/' + full.Date + '/' + full.Points + '"></a>'; }
+                },
+                {
+                    "render": function (data, type, full, meta) { return '<a class="fa fa-search-plus" href="/Activity/Show/' + full.Student.ID + '/' + full.ActivityType.Course.ID + '/' + full.ActivityType.ID + '/' + full.Date + '"></a>'; }
+                }
+            ]
+        });
+        $('#aktivnostTabela tfoot th').each(function () {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        });
+
+        tabela.columns().every(function () {
+            var that = this;
+            $(this.footer()).find('input').on('keyup change', function () {
+                that.search(this.value).draw();
+            });
+        });
+    });
+</script>
+

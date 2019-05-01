@@ -1,0 +1,146 @@
+﻿@model CourseStudentAdd
+@{
+    ViewBag.Title = "Choose course";
+}
+<br />
+<div class="list-group" style="width:90%; margin:0 auto;">
+    <div class="list-group-item">
+        @Model.Student.FirstName @Model.Student.LastName
+    </div>
+</div>
+<br />
+<div class="list-group" style="width:89%; margin:0 auto;">
+    <form>
+        <div class="form-row">
+            <div class="form-group">
+                <select id="courses" class="form-control" asp-items="@(new SelectList(Model.Courses, "ID","Name"))"></select>
+            </div>
+            <div>
+                <button id="SaveCourse" type="button" class="btn btn-link" name="save">
+                    <i class="fa fa-check" style="font-size:24px"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<div style="width:90%; margin:0 auto;">
+    <table id="coursesTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th><div>Course ID</div></th>
+                <th><div>Name</div></th>
+                <th><div>ESPB</div></th>
+                <th><div></div></th>
+                <th><div></div></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    var t;
+    $(document).ready(function () {
+        if ($('#courses').has('option').length == 0) {
+            $("#SaveCourse").prop('disabled', true);
+        }
+       t = $("#coursesTable").DataTable({
+            "destroy": true,
+            "processing": true, // for show progress bar
+            "serverSide": true, // for process server side
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": "/Student/CoursesStudent/"+@Html.Raw(Json.Serialize(Model.Student.ID)),
+                "type": "POST",
+                "datatype": "json"
+            },
+            "columnDefs": [{
+                "targets": [3],
+                "orderable": false
+            }],
+            "columns": [
+                { "data": "Course.ID", "name": "CourseID", "autoWidth": true },
+                { "data": "Course.Name", "name": "Name", "autoWidth": true },
+                { "data": "Course.ESPB", "name": "ESPB", "autoWidth": true },
+                {
+                    "render": function (data, type, full, meta) { return '<button id="DeleteCourseStudent" type="button" id="DeleteCourseStudent" onclick="DeleteCourse(this)" class="fa fa-remove btn btn-link" ></a>'; }
+                },
+                {
+                    "render": function (data, type, full, meta) {
+                        return '<a class="fa fa-info-circle btn btn-link" href="/Student/StudentCourseActivities/' +@Html.Raw(Json.Serialize(Model.Student.ID))+'/'+ full.CourseID + '"></a>';
+                    }
+                },
+            ]
+
+        });
+         $('#SaveCourse').on('click', function () {
+                $.ajax({
+                    url: "/Student/AddCourseStudent/" + $("#courses").val() + "/" +@Html.Raw(Json.Serialize(Model.Student.ID)),
+                    type: 'GET',
+                    "datatype": "json",
+                    success: function () {
+
+                        t.ajax.reload();
+                        ChangeCourse();
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception.toString());
+                    }
+             });
+        });
+        $('#DeleteCourseStudent').on('click', function () {
+                $.ajax({
+                    url: "/Student/DeleteCourseStudent/" + $("#courses").val() + "/" +@Html.Raw(Json.Serialize(Model.Student.ID)),
+                    type: 'GET',
+                    "datatype": "json",
+                    success: function () {
+                        t.ajax.reload();
+                        ChangeCourse();
+                            $("#SaveCourse").prop('disabled', false);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception.toString());
+                    }
+                });
+        });
+
+    });
+    function DeleteCourse(obj) {
+                        $.ajax({
+            url: "/Student/DeleteCourseStudent/" + $(obj).closest('tr').find('td:first').html() + "/" +@Html.Raw(Json.Serialize(Model.Student.ID)),
+                    type: 'GET',
+                    "datatype": "json",
+                            success: function () {
+                                t.ajax.reload();
+                                ChangeCourse();
+                                    $("#SaveCourse").prop('disabled', false);
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception.toString());
+                    }
+                });
+    }
+
+    function ChangeCourse() {
+        var procemessage = "<option value='0'> Please wait...</option>";
+        $("#courses").html(procemessage).show();
+        $.ajax({
+            url: "/Student/LeftCourses/"+@Html.Raw(Json.Serialize(Model.Student.ID)),
+            cache: false,
+            type: "get",
+            success: function (data) {
+
+                var markup = "";
+                for (var x = 0; x < data.length; x++) {
+                    markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                }
+                $("#courses").html(markup).show();
+                if (data.length == 0) {
+                    $("#SaveCourse").prop('disabled', true);
+                }
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+    }
+</script>

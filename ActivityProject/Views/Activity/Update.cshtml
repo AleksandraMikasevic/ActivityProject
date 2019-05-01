@@ -1,0 +1,60 @@
+﻿@model ActivityUpdate
+@{
+    ViewBag.Title = "Update activity";
+}
+<div class="forma">
+    <div class="main-div">
+        <div class="panel">
+            <h2>Update activity</h2>
+            <p>Fill in new informations about activity</p>
+        </div>
+        <form method="post" asp-action="UpdatePost" asp-controller="Activity">
+
+            <div class="form-group">
+                <label asp-for="CourseID">Course ID</label>
+                <input asp-for="CourseID" readonly="readonly" placeholder="Course ID" class="form-control" type="text" name="CourseID" value=@Model.CourseID />
+            </div>
+            <div class="form-group">
+                <label>Course name</label>
+                <input readonly="readonly" placeholder="Course name" class="form-control" type="text" name="CourseName" value='@Model.ActivityType.Course.Name' />
+            </div>
+            <div class="form-group">
+                <label asp-for="ActivityTypeID">Activity type ID</label>
+                <input asp-for="ActivityTypeID" readonly="readonly" placeholder="Activity type ID" class="form-control" type="text" name="ActivityTypeID" value=@Model.ActivityTypeID />
+            </div>
+            <div class="form-group">
+                <label>Activity type name</label>
+                <input readonly="readonly" placeholder="Activity type name" class="form-control" type="text" name="ActivityTypeName" value=@Model.ActivityType.Name />
+            </div>
+            <div class="form-group">
+                <label asp-for="ProfessorID">Professor ID</label>
+                <input asp-for="ProfessorID" readonly="readonly" placeholder="Professor ID" class="form-control" type="text" name="ProfessorID" value=@Model.ProfessorID />
+            </div>
+            <div class="form-group">
+                <label>First and last name</label>
+                <input readonly="readonly" placeholder="First and last name" class="form-control" type="text" name="ProfessorFirstLastName" value='@Model.ChosenProfessor.FirstName @Model.ChosenProfessor.LastName' />
+            </div>
+            <div class="form-group">
+                <label asp-for="StudentID">Student ID</label>
+                <input asp-for="StudentID" readonly="readonly" placeholder="Student ID" class="form-control" type="text" name="StudentID" value=@Model.StudentID />
+            </div>
+            <div class="form-group">
+                <label>Transcript number</label>
+                <input readonly="readonly" placeholder="Transcript number" class="form-control" type="text" name="TranscriptNumber" value=@Model.ChosenStudent.TranscriptNumber />
+            </div>
+            <div class="form-group">
+                <label>Forst and last name</label>
+                <input readonly="readonly" placeholder="First and last name" class="form-control" type="text" name="StudentFirstLastName" value='@Model.ChosenStudent.FirstName @Model.ChosenStudent.LastName' />
+            </div>
+            <div class="form-group">
+                <label asp-for="Date">Date</label>
+                <input asp-for="Date" readonly="readonly" placeholder="Date" class="form-control" type="text" name="Date" value=@Model.Date />
+            </div>
+            <div class="form-group">
+                <label asp-for="Points">Points</label>
+                <input asp-for="Points" placeholder="Points" class="form-control" type="text" name="Points" value=@Model.Points />
+            </div>
+            <button type="submit" class="btn btn-primary" name="save">Save</button>
+        </form>
+    </div>
+</div>

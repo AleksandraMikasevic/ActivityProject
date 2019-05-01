@@ -1,0 +1,106 @@
+﻿@model StudentShowStudent
+@{
+    ViewBag.Title = "Show student";
+}
+@{
+    var parms = new Dictionary<string, string>
+{
+{ "StudentID", Model.CourseStudent.StudentID},
+{ "CourseID", Model.CourseStudent.CourseID }
+};
+}
+
+<br />
+<div class="list-group" style="width:90%; margin:0 auto;">
+    <div class="list-group-item">
+        @Model.CourseStudent.Student.FirstName  @Model.CourseStudent.Student.LastName/@Model.CourseStudent.Course.Name
+    </div>
+</div>
+<br />
+<ul class="list-group" style="width:90%; margin:0 auto;">
+    @for (var i = 0; i < Model.CourseStudent.Course.ActivityTypes.ToList().Count; i++)
+    {
+        bool found = false;
+        <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+
+            @(i + 1). @Model.CourseStudent.Course.ActivityTypes.ToList()[i].Name
+            @for (var j = 0; j < Model.Activities.ToList().Count; j++)
+            {
+                if (Model.Activities.ToList()[j].ActivityTypeID == @Model.CourseStudent.Course.ActivityTypes.ToList()[i].ID)
+                {
+                    found = true;
+                    <span>
+                        @Model.Activities.ToList()[j].Points
+                    </span>
+                    break;
+                }
+            }
+
+            @if (found == false)
+            {
+                <span>
+                    0
+                </span>
+            }
+        </li>
+    }
+</ul>
+<br />
+<div class="list-group">
+    <div class="prikazStudentaOcena list-group-item  d-flex justify-content-between align-items-center">
+        @if (Model.CourseStudent.FinalGrade == null)
+        {
+            <span>Proposed grade</span>
+            <span>
+                @Model.CourseStudent.ProposedGrade
+                @if (Model.CourseStudent.ProposedGrade > 5)
+                {
+                    <a href="/Student/FinalizeGrade/@Model.CourseStudent.StudentID/@Model.CourseStudent.CourseID">
+                        <i class="fa fa-check" style="font-size:24px"></i>
+                    </a>
+                }
+            </span>
+        }
+
+        else
+        {
+            <span>Final grade</span>
+            <span>
+                @Model.CourseStudent.FinalGrade
+
+                <a href="/Student/DeleteFinalGrade/@Model.CourseStudent.StudentID/@Model.CourseStudent.CourseID">
+                    <i class="fa fa-remove" style="font-size:24px"></i>
+                </a>
+            </span>
+        }
+    </div>
+    @if (Model.CourseStudent.FinalGrade == null)
+    {
+        <div style="padding-bottom:0px" class="prikazStudentaOcena list-group-item  d-flex justify-content-between align-items-center">
+
+            <span>Choose grade you want to finalize: </span>
+            <form id="formaZak" method="post" asp-all-route-data=parms asp-action="UpdateFinalGrade" asp-controller="Student">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input placeholder="Grade" class="form-control" type="text" name="Grade" value="" />
+                    </div>
+                    <div class="form-group">
+                        <a id="SumLink" href="#">
+                            <i class="fa fa-check" style="font-size:24px"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+<br />
+
+
+
+
+<script>
+    document.getElementById("SumLink").onclick = function () {
+        document.getElementById("formaZak").submit();
+    }
+</script>

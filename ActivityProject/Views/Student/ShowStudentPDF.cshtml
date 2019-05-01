@@ -1,0 +1,71 @@
+﻿@model StudentShowStudent
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = "~/Views/Shared/_Layout3.cshtml";
+    ViewBag.Title = "Show student";
+}
+<br />
+<div class="list-group">
+    <div class="prikazStudentaOcena list-group-item  d-flex justify-content-between align-items-center">
+        <span>
+            Report created: @Model.Date.Day/@Model.Date.Month/@Model.Date.Year
+        </span>
+        <span style="float:right">
+            Report created by: @HttpContextAccessor.HttpContext.Session.GetString("professor")
+        </span>
+    </div>
+</div><br />
+
+<div class="list-group" style="width:90%; margin:0 auto;">
+    <div class="list-group-item">
+        @Model.CourseStudent.Student.FirstName  @Model.CourseStudent.Student.LastName/@Model.CourseStudent.Course.Name
+    </div>
+</div>
+<br />
+<ul class="list-group" style="width:90%; margin:0 auto;">
+    @for (var i = 0; i < Model.CourseStudent.Course.ActivityTypes.ToList().Count; i++)
+    {
+        bool found = false;
+        <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+
+            @(i + 1). @Model.CourseStudent.Course.ActivityTypes.ToList()[i].Name
+            @for (var j = 0; j < Model.Activities.ToList().Count; j++)
+            {
+                if (Model.Activities.ToList()[j].ActivityTypeID == @Model.CourseStudent.Course.ActivityTypes.ToList()[i].ID)
+                {
+                    found = true;
+                    <span style="float:right">
+                        @Model.Activities.ToList()[j].Points
+                    </span>
+                    break;
+                }
+            }
+
+            @if (found == false)
+            {
+                <span style="float:right">
+                    0
+                </span>
+            }
+        </li>
+    }
+</ul>
+<br />
+<div class="list-group">
+    <div class="prikazStudentaOcena list-group-item  d-flex justify-content-between align-items-center">
+        @if (Model.CourseStudent.FinalGrade == null)
+        {
+            <span>Proposed grade</span>
+            <span style="float:right">
+                @Model.CourseStudent.ProposedGrade
+            </span>
+        }
+
+        else
+        {
+            <span>Final grade</span>
+            <span style="float:right">@Model.CourseStudent.FinalGrade</span>
+        }
+    </div>
+</div>
+<br />

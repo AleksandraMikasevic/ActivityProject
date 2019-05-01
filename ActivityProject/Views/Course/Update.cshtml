@@ -1,0 +1,242 @@
+﻿@model CourseAdd
+@{
+    ViewData["Title"] = "Update course";
+}
+
+<div class="forma">
+    <div class="main-div">
+        <div class="panel">
+            <h2>Update course</h2>
+            <p>Fill in new informations about course</p>
+        </div>
+        <form id="mojaForma" method="post" asp-action="UpdatePost" asp-controller="Course">
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label asp-for="CourseID">Course ID</label>
+                    <input asp-for="CourseID" placeholder="Course ID" readonly="readonly" class="form-control" type="text" name="CourseID" value="@Model.CourseID" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" placeholder="Name" class="form-control" type="text" name="Name" value="@Model.Name" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="ESPB">ESPB</label>
+                    <input asp-for="ESPB" placeholder="ESPB" class="form-control" type="text" name="ESPB" value="@Model.ESPB" />
+                </div>
+            </div>
+            <div class="list-group" style="width:100%; margin:0 auto;">
+                <label>Informations about activity types</label>
+                <div class="list-group-item">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Name</label>
+                            <input type="text" id="Name123" placeholder="Name" class="form-control" name="Name123" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Min points</label>
+                            <input type="text" id="MinPoints" placeholder="Min points" class="form-control" name="Min points" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Max points</label>
+                            <input type="text" id="MaxPoints" placeholder="Max points" class="form-control" name="MaxPoints" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Weight coefficient</label>
+                            <input type="text" id="WeightCoefficient" placeholder="Weight coefficient" class="form-control" name="WeightCoefficient" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+
+                        <div class="form-group col-md-4">
+                            <input type="checkbox" name="Required" id="Required" /> <label>Required</label>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <button type="button" id="saveType" class="btn btn-info" name="saveType">Save type</button>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="button" id="updateType" class="btn btn-info fa fa-cogs" name="updateType"></button>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <button type="button" id="deleteType" class="btn btn-info fa fa-remove" name="deleteType"></button>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <table id="activityTypesTable" class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Activity type iD</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Min points</th>
+                            <th scope="col">Max points</th>
+                            <th scope="col">Weight coefficient</th>
+                            <th scope="col">Required</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <br />
+            <button type="submit" id="SaveButton" class="btn btn-primary" name="save">Save course</button>
+            <input asp-for="JsonString" id="JsonString" hidden="hidden" class="form-control" type="text" name="JsonString" value="" />
+            <input type="text" id="TypeID" value="" hidden="hidden" />
+        </form>
+    </div>
+</div>
+<script>
+    var t;
+    var p;
+    $(document).ready(function () {
+
+        t = $("#activityTypesTable").DataTable({
+            "initComplete": function (settings, data) {
+                document.getElementById("JsonString").value = JSON.stringify(data["data"]);
+            },
+            dom: "Brtip",
+            "serverSide": false,
+            // for disable multiple column at once
+            ajax: {
+                "url": "/Course/ActivityTypesForUpdate/" +'@Html.Raw(Model.CourseID)',
+                "type": "GET",
+                "datatype": "json"
+            },
+            "columns": [
+                { "data": "ID", "name": "ID", "autoWidth": true },
+                { "data": "Name", "name": "Name", "autoWidth": true },
+                { "data": "MinPoints", "name": "MinPoints", "autoWidth": true },
+                { "data": "MaxPoints", "name": "MaxPoints", "autoWidth": true },
+                { "data": "WeightCoefficient", "name": "WeightCoefficient", "autoWidth": true },
+                { "data": "Required", "name": "Required", "autoWidth": true }
+            ]
+        });
+        var counter = 1;
+
+        $('#saveType').on('click', function () {
+
+            if ($("#TypeID").val() === "") {
+                $.ajax({
+                    url: "/Course/AddType/"
+                        + document.getElementById("Name123").value + "/" +
+                        document.getElementById("MinPoints").value + "/" + document.getElementById("MaxPoints").value + "/" +
+                        document.getElementById("WeightCoefficient").value + "/" + $("input[type='checkbox']").is(':checked'),
+                    type: 'get',
+                    "datatype": "json",
+                    success: function (data) {
+                        t.row.add(data["data"]).draw(false);
+                        $("#deleteType").prop('disabled', true);
+                        $("#updateType").prop('disabled', true);
+                        document.getElementById("JsonString").value = JSON.stringify(t.rows().data().toArray());
+                        document.getElementById("MinPoints").value = "";
+                        document.getElementById("WeightCoefficient").value = "";
+                        document.getElementById("MaxPoints").value = "";
+                        $("input[type='checkbox']").prop('checked', false);
+                        document.getElementById("Name123").value = "";
+                        document.getElementById("TypeID").value = "";
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception.toString());
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    url: "/Course/UpdateType/" + document.getElementById("TypeID").value + "/"
+                        + document.getElementById("Name123").value + "/" +
+                        document.getElementById("MinPoints").value + "/" + document.getElementById("MaxPoints").value + "/" +
+                        document.getElementById("WeightCoefficient").value + "/" + $("input[type='checkbox']").is(':checked'),
+                    type: 'get',
+                    "datatype": "json",
+                    success: function (data) {
+                        //var id = $(t.row('.selected').node()).data('id');
+                        //alert(id);
+                        t.rows().eq(0).each(function (index) {
+                            var row = t.row(index);
+                            if (t.cell(index, 0).data() == data["data"].ID) {
+                                t.row(index).data(data["data"]).draw();
+                            }
+                            // ... do something with data(), or row.node(), etc
+                        });
+                        $("#deleteType").prop('disabled', true);
+                        $("#updateType").prop('disabled', true);
+                        document.getElementById("TypeID").value = "";
+                        document.getElementById("JsonString").value = JSON.stringify(t.rows().data().toArray());
+                        document.getElementById("MinPoints").value = "";
+                        document.getElementById("WeightCoefficient").value = "";
+                        document.getElementById("MaxPoints").value = "";
+                        $("input[type='checkbox']").prop('checked', false);
+                        document.getElementById("Name123").value = "";
+                        document.getElementById("TypeID").value = "";
+                    },
+                    error: function (jqxhr, status, exception) {
+                        alert('Exception:', exception.toString());
+                    }
+                });
+
+            }
+
+        });
+
+
+        $('#activityTypesTable tbody').on('click', 'tr', function () {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+                $("#deleteType").prop('disabled', true);
+                $("#updateType").prop('disabled', true);
+            } else {
+                t.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+                $("#deleteType").prop('disabled', false);
+                $("#updateType").prop('disabled', false);
+            }
+        });
+
+
+        $('#deleteType').click(function () {
+
+            var selectedRow = t.cell('.selected', 0).data();
+            $.ajax({
+                url: "/Course/DeleteType/" + selectedRow,
+                type: 'GET',
+                success: function (data) {
+                    // t.ajax.reload();
+                    document.getElementById("TypeID").value = "";
+                    $("#deleteType").prop('disabled', true);
+                    $("#updateType").prop('disabled', true);
+                    t.row('.selected').remove().draw(false);
+                    document.getElementById("JsonString").value = JSON.stringify(t.rows().data().toArray());
+                },
+                error: function (jqxhr, status, exception) {
+                    alert('Exception:', exception.toString());
+                }
+            });
+        });
+
+        $('#updateType').click(function () {
+            var selectedRowSifraTipaAktivnosti = t.cell('.selected', 0).data();
+            var selectedRowNaziv = t.cell('.selected', 1).data();
+            var selectedRowMinBrojPoena = t.cell('.selected', 2).data();
+            var selectedRowMaxBrojPoena = t.cell('.selected', 3).data();
+            var selectedRowTezKoef = t.cell('.selected', 4).data();
+            var selectedRowObavezna = t.cell('.selected', 5).data();
+            document.getElementById("Name123").value = selectedRowNaziv;
+            document.getElementById("MinPoints").value = selectedRowMinBrojPoena;
+            document.getElementById("MaxPoints").value = selectedRowMaxBrojPoena;
+            document.getElementById("WeightCoefficient").value = selectedRowTezKoef;
+            if (selectedRowObavezna == true) {
+                $("input[type='checkbox']").prop('checked', true);
+            }
+            else {
+                $("input[type='checkbox']").prop('checked', false);
+            }
+            document.getElementById("TypeID").value = selectedRowSifraTipaAktivnosti;
+
+        });
+
+    });
+    function tableActions() {
+        alert(JSON.stringify(t.rows().data()));
+        // perform API operations with `table`
+        // ...
+    }
+</script>

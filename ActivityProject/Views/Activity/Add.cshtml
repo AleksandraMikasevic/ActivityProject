@@ -1,0 +1,111 @@
+﻿@model ActivityAdd
+@{
+    ViewBag.Title = "Add activity";
+}
+
+
+
+<div class="forma">
+    <div class="main-div">
+        <div class="panel">
+            <h2>Adding activity</h2>
+            <p>Fill in informations about activity</p>
+        </div>
+        <form method="post" asp-action="AddPost" asp-controller="Activity">
+            <div class="form-group">
+                <label asp-for="CourseID">Course</label>
+                <select id="courses" asp-for="CourseID" class="form-control" onchange="ChangeCourse()" asp-items="@(new SelectList(Model.Courses, "ID","Name"))" value=@Model.CourseID></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ActivityTypeID">Activity type</label>
+                <select id="activities" name="ActivityTypeID" asp-for="ActivityTypeID" class="form-control" asp-items="@(new SelectList(Model.ActivityTypes, "ID","Name"))" value=@Model.ActivityTypeID></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProfessorID">Professor</label>
+                <select asp-for="ProfessorID" placeholder="Professor" class="form-control" asp-items="@(new SelectList(Model.Professors.Select(s => new { Text = s.FirstName+" "+s.LastName, ProfessorID = s.ID}),"ProfessorID","Text"))" value=@Model.ProfessorID></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="StudentID">Student</label>
+                <select id="students" asp-for="StudentID" class="form-control" asp-items="@(new SelectList(Model.Students.Select(s=> new {Text = s.FirstName+" "+s.LastName+"-"+s.TranscriptNumber, StudentID= s.ID}), "StudentID","Text"))" value=@Model.ProfessorID></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Points">Points</label>
+                <input asp-for="Points" placeholder="Points" class="form-control" type="text" name="Points" value="" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Date">Date</label>
+                <input asp-for="Date" id="datepicker" placeholder="Date" class="form-control" type="text" name="Date" value="" />
+            </div>
+            <button type="submit" class="btn btn-primary" name="save">Save</button>
+        </form>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        $('form').bootstrapValidator({
+            fields: {
+                Date: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Choose date.'
+                        }
+                    }
+                },
+                Points: {
+                    validators: {
+                        notEmpty: {
+                            message: 'Fill points number.'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#datepicker").datepicker({ dateFormat: 'dd.mm.yy' });
+    });
+
+    function ChangeCourse() {
+        var procemessage = "<option value='0'> Please wait...</option>";
+        $("#activities").html(procemessage).show();
+        var url = "/Course/ReturnActivityTypesForCB/";
+        var _courseID = $('#courses').find(":selected").val();;
+        $.ajax({
+            url: "/Course/ReturnActivityTypesForCB/" + _courseID,
+            cache: false,
+            type: "POST",
+            success: function (data) {
+                var markup = "";
+                for (var x = 0; x < data.length; x++) {
+                    markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                }
+                $("#activities").html(markup).show();
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+        var procemessage = "<option value='0'> Please wait...</option>";
+        $("#students").html(procemessage).show();
+        var _courseID = $('#courses').find(":selected").val();;
+        $.ajax({
+            url: "/Course/ReturnStudentsForCB/" + _courseID,
+            cache: false,
+            type: "POST",
+            success: function (data) {
+                var markup = "";
+                for (var x = 0; x < data.length; x++) {
+                    markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                }
+                $("#students").html(markup).show();
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+    }
+</script>
+

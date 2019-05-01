@@ -1,0 +1,148 @@
+﻿@model StudentStudents
+@{
+    ViewBag.Title = "Students by subjects";
+}
+<br />
+<div class="list-group" style="width:90%; margin:0 auto;">
+    <div class="list-group-item">
+        @Model.Course.Name
+    </div>
+</div>
+<div class="list-group" style="width:87.5%; margin:0 auto;">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Date from:</label>
+            <input id="datepicker1" placeholder="Date from" class="form-control" type="text" name="DateFrom" value="" />
+        </div>
+        <div class="form-group">
+            <label>Date to:</label>
+            <input id="datepicker2" placeholder="Date to" class="form-control" type="text" name="DateTo" value="" />
+        </div>
+        <div>
+            <div>
+                <label>  <br /></label>
+            </div>
+            <button class="btn btn-link" type="button" id="SumLink">
+                <i class="fa fa-check" style="font-size:24px"></i>
+            </button>
+        </div>
+        <div>
+            <div>
+                <label>  <br /></label>
+            </div>
+            <button class="btn btn-link" type="button" id="DelLink">
+                <i class="fa fa-remove" style="font-size:24px"></i>
+            </button>
+        </div>
+        <div id="ModDiv" class="form-group">
+            <label>Choose view:</label>
+            <select id="Mod" onclick="ChangeMod()" placeholder="View" class="form-control" asp-items="@(new SelectList(Model.Mod.Select(s => new { Text = s.Name, Value = s.Value}),"Value","Text"))"></select>
+        </div>
+
+    </div>
+</div>
+<div style="width:90%; margin:0 auto;">
+    <table id="coursesTable" class="table table-striped table-bordered dt-responsive nowrap" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th><div>ID</div></th>
+                <th><div>Transcript number</div></th>
+                <th><div>First name</div></th>
+                <th><div>Last name</div></th>
+                <th><div>Final grade</div></th>
+                <th><div>Date of completion</div></th>
+                <th><div>View</div></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    var t;
+    document.getElementById("SumLink").onclick = function () {
+        var DateFrom = $("#datepicker1").datepicker({ dateFormat: 'dd,MM,yyyy' }).val();
+        var DateTo = $("#datepicker2").datepicker({ dateFormat: 'dd,MM,yyyy' }).val();
+        if (DateFrom > DateTo) {
+            alert("Datum od mora biti datum pre datuma do.");
+        }
+        if (DateFrom == null || DateTo == null || DateFrom == "" || DateTo == "") {
+            alert("Datum od mora biti datum pre datuma do.");
+            //ako ostavi prazno onda sve
+            //ako je jedan prazan onda do i od datuma
+        }
+        else {
+            var mod = $("#Mod").val();
+            t.ajax.url("/Student/StudentsByCourse/" + '@Html.Raw(Model.CourseID)' + "/" + DateFrom + "/" + DateTo + "/" + mod).load();
+
+        }
+
+    }
+     document.getElementById("DelLink").onclick = function () {
+         t.ajax.url("/Student/StudentsByCourse/" + '@Html.Raw(Model.CourseID)' + "/" + "undefined" + "/" + "undefined" + "/" + 0).load();
+    }
+    function ChangeMod() {
+        var mod = $("#Mod").val();
+        if (mod == "1" || mod == "2") {
+            $("#datepicker1").prop('disabled', true);
+            $("#datepicker2").prop('disabled', true);
+            $("#SumLink").prop('disabled', true);
+            $("#DelLink").prop('disabled', true);
+        }
+        else {
+            $("#datepicker1").prop('disabled', false);
+            $("#datepicker2").prop('disabled', false);
+            $("#SumLink").prop('disabled', false);
+            $("#DelLink").prop('disabled', false);
+        }
+        t.ajax.url("/Student/StudentsByCourse/" + '@Html.Raw(Model.CourseID)' + "/" + "undefined" + "/" + "undefined" + "/" + mod).load();
+    }
+
+
+    $(document).ready(function () {
+        $("#datepicker1").datepicker({ dateFormat: 'dd.mm.yy' });
+        $("#datepicker2").datepicker({ dateFormat: 'dd.mm.yy' });
+
+        t = $("#coursesTable").DataTable({
+            "destroy": true,
+            "processing": true, // for show progress bar
+            "serverSide": true, // for process server side
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "url": "/Student/StudentsByCourse/" + '@Html.Raw(Model.CourseID)' + "/" + "undefined" + "/" + "undefined"+"/"+"0",
+                "type": "post",
+                "datatype": "json"
+            },
+            "columnDefs": [{
+                "targets": [3, 4],
+                "orderable": false
+            }],
+            "columns": [
+                { "data": "Student.ID", "name": "ID", "autoWidth": true },
+                { "data": "Student.TranscriptNumber", "name": "TranscriptNumber", "autoWidth": true },
+                { "data": "Student.FirstName", "name": "FirstName", "autoWidth": true },
+                { "data": "Student.LastName", "name": "LastName", "autoWidth": true },
+                { "data": "FinalGrade", "name": "FinalGrade", "autoWidth": true },
+                {
+                    "data": "CompletionDate", "name": "Datum", "autoWidth": true,
+                    "render": function (data, type, row) {
+                        if (data == null) {
+                            return "";
+                        }
+                        var date = new Date(data);
+                        var day = date.getDate();
+                        var month = date.getMonth()+1;
+                        var year = date.getFullYear();
+                        return day + "." + month + "." + year;
+                    }
+                },
+                {
+
+                    "render": function (data, type, full, meta) { return '<a class="btn btn-info fa fa-search-plus" href="/Activity/ActivitiesByStudent/'+'@Html.Raw(Model.CourseID)'+'/' + full.StudentID + '"></a>'; }
+                }
+            ]
+
+        });
+    });
+
+
+</script>

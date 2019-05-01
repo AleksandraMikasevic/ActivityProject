@@ -1,0 +1,138 @@
+﻿@model StudentAdd
+@{
+    ViewBag.Title = "Add student";
+}
+<div class="forma">
+    <div class="main-div">
+        <div class="panel">
+            <h2>Add student</h2>
+            <p>Fill in informations about student</p>
+        </div>
+        <form id="studentForma" method="post" asp-action="AddPost" asp-controller="Student">
+
+            <div class="form-group">
+                <label asp-for="StudentID"></label>
+                <input asp-for="StudentID" placeholder="Student ID" class="form-control" type="text" name="StudentID" value="" />
+            </div>
+            <div class="form-group">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" placeholder="First name" class="form-control" type="text" name="firstName" value="" />
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName"></label>
+                <input asp-for="LastName" placeholder="Last name" class="form-control" type="text" name="LastName" value="" />
+            </div>
+            <div class="form-group">
+                <label asp-for="TranscriptNumber">Broj indeksa</label>
+                <input asp-for="TranscriptNumber" placeholder="Transcript number" class="form-control" type="text" name="TranscriptNumber" value="" />
+            </div>
+            <div class="list-group" style="width:100%; margin:0 auto;">
+                <label>Informations about courses</label>
+                <div class="list-group-item">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Course</label>
+                            <select id="courses" class="form-control" asp-items="@(new SelectList(Model.Courses, "ID","Name"))"></select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <br />
+                            <br />
+                            <button type="button" id="saveCourse" class="btn btn-info" name="SaveCourse">Add course</button>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <br />
+                            <br />
+                            <button type="button" id="DeleteCourse" class="btn btn-info fa fa-remove" name="DeleteCourse"></button>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <table id="coursesTable" class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th><div>Course ID</div></th>
+                            <th><div>Name</div></th>
+                            <th><div>ESPB</div></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <button type="submit" id="SaveStudent" class="btn btn-primary" name="SaveStudent">Save</button>
+            <input asp-for="JsonString" id="JsonPredmeti" hidden="hidden" class="form-control" type="text" name="JsonString" value="" />
+        </form>
+    </div>
+</div>
+<script>
+    var t;
+    $(document).ready(function () {
+        if ($('#courses').has('option').length == 0) {
+            $("#saveCourse").prop('disabled', true);
+
+        }
+        t = $("#coursesTable").DataTable({
+            "initComplete": function (settings, data) {
+                document.getElementById("JsonString").value = JSON.stringify(data["data"]);
+            },
+            dom: "Brtip",
+            "serverSide": false,
+
+            "destroy": true,
+            "processing": true, // for show progress bar
+            "filter": true, // this is for disable filter (search box)
+            "orderMulti": false, // for disable multiple column at once
+            "ajax": {
+                "type": "GET",
+                "datatype": "json",
+                "url": "/Student/ReturnCourseAdd/"
+            },
+
+            "columns": [
+                { "data": "ID", "name": "ID", "autoWidth": true },
+                { "data": "Name", "name": "Name", "autoWidth": true },
+                { "data": "ESPB", "name": "ESPB", "autoWidth": true }
+            ]
+
+        });
+        document.getElementById("JsonPredmeti").value = JSON.stringify(t.rows().data().toArray());
+        $('#saveCourse').on('click', function () {
+            $.ajax({
+                url: "/Student/AddActivity/"
+                    + document.getElementById("courses").value,
+                type: 'get',
+                "datatype": "json",
+                success: function (data) {
+                    t.row.add(data["data"]).draw(false);
+                    $("#DeleteCourse").prop('disabled', true);
+                    $("#courses option[value=" + data["data"]["ID"] + "]").remove();
+                    document.getElementById("JsonPredmeti").value = JSON.stringify(t.rows().data().toArray());
+                },
+                error: function (jqxhr, status, exception) {
+                    alert('Exception:', exception.toString());
+                }
+            });
+        });
+
+
+        $('#coursesTable tbody').on('click', 'tr', function () {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+                $("#DeleteCourse").prop('disabled', true);
+            } else {
+                t.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+                $("#DeleteCourse").prop('disabled', false);
+            }
+        });
+
+        $('#DeleteCourse').click(function () {
+            var selectedRow = t.cell('.selected', 0).data();
+            $("#courses").append(new Option(t.cell('.selected', 1).data(), t.cell('.selected', 0).data()));
+
+            $("#DeleteCourse").prop('disabled', true);
+            t.row('.selected').remove().draw(false);
+            document.getElementById("JsonPredmeti").value = JSON.stringify(t.rows().data().toArray());
+
+        });
+
+    });
+</script>

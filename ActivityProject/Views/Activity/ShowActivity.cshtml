@@ -1,0 +1,62 @@
+﻿@model Activity
+@{
+    ViewBag.Title = "Show activity";
+}
+<br />
+<div class="list-group" style="width:90%; margin:0 auto;">
+    <div class="list-group-item">
+        @Model.Student.FirstName  @Model.Student.LastName/@Model.ActivityType.Course.Name/@Model.ActivityType.Name
+    </div>
+</div>
+<br />
+<ul class="list-group" style="width:90%; margin:0 auto;">
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Student</span>
+        <span>
+            @Model.Student.FirstName @Model.Student.LastName
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Broj indeksa</span>
+        <span>
+            @Model.Student.TranscriptNumber
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Predmet</span>
+        <span>
+            @Model.ActivityType.Course.Name
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Šifra predmeta</span>
+        <span>
+            @Model.ActivityType.Course.ID
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Tip aktivnosti</span>
+        <span>
+            @Model.ActivityType.Name
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Šifra tipa aktivnosti</span>
+        <span>
+            @Model.ActivityType.ID
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Nastavnik</span>
+        <span>
+            @Model.Professor.FirstName @Model.Professor.LastName
+        </span>
+    </li>
+    <li class="prikazStudenta list-group-item d-flex justify-content-between align-items-center">
+        <span>Broj poena</span>
+        <span>
+            @Model.Points
+        </span>
+    </li>
+</ul>
+
